@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">TMDB</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_image_adapter">ImageAdapter</string>
+    <string name="action_settings">Settings</string>
+    
+    
+   <string-array name="pref_entries"
+       translatable="false">
+       
+       <item> Popularity</item>
+       <item> Rating</item>
+       
+   </string-array>
+    
+    <string-array name="pref_values" translatable="false">
+        <item> popularity</item>
+        <item> rating</item>
+
+
+    </string-array>
+
+</resources>
