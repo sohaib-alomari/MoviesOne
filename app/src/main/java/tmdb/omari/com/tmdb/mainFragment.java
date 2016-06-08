@@ -1,6 +1,7 @@
 package tmdb.omari.com.tmdb;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
@@ -45,6 +46,13 @@ public class mainFragment extends Fragment {
     static SharedPreferences prefs;
    // to Save the Favorite Poster paths static ArrayList<String> postersP=new ArrayList<String>();
 
+    static ArrayList<String> overviews;
+    static ArrayList<String> titles;
+    static ArrayList<String> dates;
+    static ArrayList<String> ratings;
+    //static ArrayList<String> ids;
+    //static ArrayList<ArrayList<String>> comments;
+
 
 
 
@@ -85,7 +93,14 @@ public class mainFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.print(position);
+
+
+                Intent i=new Intent(getActivity(),DetailActivity.class).
+                        putExtra("overview",overviews.get(position)).
+                        putExtra("poster", posters.get(position)).
+                        putExtra("title",titles.get(position)).
+                        putExtra("dates",dates.get(position)).
+                        putExtra("rating",ratings.get(position));
             }
         });
 

@@ -19,11 +19,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ImageAdapter"
-            android:label="@string/title_activity_image_adapter"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Settings"></activity>
+        <activity android:name=".Settings" />
+        <activity android:name=".DetailActivity"></activity>
     </application>
 
 </manifest>
