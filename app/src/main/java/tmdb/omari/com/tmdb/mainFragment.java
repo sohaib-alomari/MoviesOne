@@ -44,14 +44,11 @@ public class mainFragment extends Fragment {
 
     static PreferenceChangeListener listener;
     static SharedPreferences prefs;
-   // to Save the Favorite Poster paths static ArrayList<String> postersP=new ArrayList<String>();
-
     static ArrayList<String> overviews;
     static ArrayList<String> titles;
     static ArrayList<String> dates;
     static ArrayList<String> ratings;
-    //static ArrayList<String> ids;
-    //static ArrayList<ArrayList<String>> comments;
+
 
 
 
@@ -101,6 +98,8 @@ public class mainFragment extends Fragment {
                         putExtra("title",titles.get(position)).
                         putExtra("dates",dates.get(position)).
                         putExtra("rating",ratings.get(position));
+                startActivity(i);
+
             }
         });
 
@@ -240,6 +239,12 @@ public class mainFragment extends Fragment {
 
                     try {
 
+                        overviews = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"overview")));
+                        titles = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"original_title")));
+                        ratings = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"vote_average")));
+                        dates = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"release_date")));
+
+
                        return getPathsFromJson(JSONResults);
                     } catch (JSONException e) {
                         return null;
@@ -274,6 +279,7 @@ public class mainFragment extends Fragment {
 
         }
 
+
         public String[] getPathsFromJson(String JSONStringParam) throws JSONException{
 
             JSONObject JSONString = new JSONObject(JSONStringParam);
@@ -287,6 +293,31 @@ public class mainFragment extends Fragment {
                 String moviePath = movie.getString("poster_path");
                 result[i]=moviePath;
 
+            }
+            return result;
+        }
+
+
+        public String[] getStringsFromJSON(String JSONStringParam,String param) throws JSONException{
+
+            JSONObject JSONString = new JSONObject(JSONStringParam);
+
+            JSONArray moviesArray = JSONString.getJSONArray("results");
+            String[] result = new String[moviesArray.length()];
+
+            for(int i = 0; i<moviesArray.length();i++)
+            {
+                JSONObject movie = moviesArray.getJSONObject(i);
+                if(param.equals("vote_average"))
+                {
+                    Double number = movie.getDouble("vote_average");
+                    String rating =Double.toString(number)+"/10";
+                    result[i]=rating;
+                }
+                else {
+                    String data = movie.getString(param);
+                    result[i] = data;
+                }
             }
             return result;
         }

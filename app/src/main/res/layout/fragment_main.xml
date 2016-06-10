@@ -19,7 +19,7 @@
         android:horizontalSpacing="0dp"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
-        android:background="#000000"
+        android:background="#FAEBD7"
 
         >
 

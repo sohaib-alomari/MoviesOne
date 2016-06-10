@@ -1,5 +1,8 @@
 package tmdb.omari.com.tmdb;
 
+
+//Sohaib Alomari Movie Project Part 1
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
