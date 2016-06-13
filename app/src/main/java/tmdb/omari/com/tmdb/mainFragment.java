@@ -38,7 +38,7 @@ public class mainFragment extends Fragment {
 
     static GridView gridView;
     static int width;
-    // you have to sign up and get your own API key 2
+    // you have to sign up and get your own API key 3
     static String API_KEY=" ";
     static ArrayList<String> posters;
     static boolean sortbyp=false;
