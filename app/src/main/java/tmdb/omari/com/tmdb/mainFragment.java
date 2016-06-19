@@ -39,7 +39,7 @@ public class mainFragment extends Fragment {
     static GridView gridView;
     static int width;
     // you have to sign up and get your own API key 3
-    static String API_KEY=" ";
+    static String API_KEY="1f1e4e852b00dc660803e835ee5fc600";
     static ArrayList<String> posters;
     static boolean sortbyp=false;
 
@@ -49,6 +49,11 @@ public class mainFragment extends Fragment {
     static ArrayList<String> titles;
     static ArrayList<String> dates;
     static ArrayList<String> ratings;
+    static ArrayList<String> youtubes;
+    static ArrayList<String> youtubes2;
+    static ArrayList<String> ids;
+    static ArrayList<Boolean> favorited;
+    static ArrayList<ArrayList<String>> comments;
 
 
 
@@ -92,13 +97,23 @@ public class mainFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                favorited = new ArrayList<Boolean>();
+                for(int i = 0; i<titles.size();i++)
+                {
+                    favorited.add(false);
+                }
+
 
                 Intent i=new Intent(getActivity(),DetailActivity.class).
                         putExtra("overview",overviews.get(position)).
                         putExtra("poster", posters.get(position)).
                         putExtra("title",titles.get(position)).
                         putExtra("dates",dates.get(position)).
-                        putExtra("rating",ratings.get(position));
+                        putExtra("rating",ratings.get(position)).
+                        putExtra("youtube",youtubes.get(position)).
+                        putExtra("youtube2",youtubes2.get(position)).
+                        putExtra("comments",comments.get(position)).
+                        putExtra("favorite",favorited.get(position));
                 startActivity(i);
 
             }
@@ -244,8 +259,40 @@ public class mainFragment extends Fragment {
                         titles = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"original_title")));
                         ratings = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"vote_average")));
                         dates = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"release_date")));
+                        ids = new ArrayList<String>(Arrays.asList(getStringsFromJSON(JSONResults,"id")));
 
 
+
+
+
+                        // The Youtube Links sometimes come back to be inconsistent as in NULL so we put it in a loop that keeps trying untill we get a solid Result
+                        while(true)
+                        {
+                            youtubes = new ArrayList<String>(Arrays.asList(getYoutubesFromIds(ids,0)));
+                            youtubes2 = new ArrayList<String>(Arrays.asList(getYoutubesFromIds(ids,1)));
+                            int nullCount = 0;
+                            for(int i = 0; i<youtubes.size();i++)
+                            {
+                                if(youtubes.get(i)==null)
+                                {
+                                    nullCount++;
+                                    youtubes.set(i,"no video found");
+                                }
+                            }
+                            for(int i = 0; i<youtubes2.size();i++)
+                            {
+                                if(youtubes2.get(i)==null)
+                                {
+                                    nullCount++;
+                                    youtubes2.set(i,"no video found");
+                                }
+                            }
+                            if(nullCount>2)continue;
+                            break;
+                        }
+
+
+                        comments = getReviewsFromIds(ids);
                        return getPathsFromJson(JSONResults);
                     } catch (JSONException e) {
                         return null;
@@ -277,6 +324,167 @@ public class mainFragment extends Fragment {
 
 
             }
+
+        }
+
+        public ArrayList<ArrayList<String>> getReviewsFromIds(ArrayList<String> ids)
+        {
+
+            while(true)
+            {
+                ArrayList<ArrayList<String>> results = new ArrayList<>();
+                for(int i =0; i<ids.size(); i++)
+                {
+                    HttpURLConnection urlConnection = null;
+                    BufferedReader reader = null;
+                    String JSONResult;
+
+                    try {
+                        String urlString = null;
+                        urlString = "http://api.themoviedb.org/3/movie/" + ids.get(i) + "/reviews?api_key=" + API_KEY;
+                        URL url = new URL(urlString);
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestMethod("GET");
+                        urlConnection.connect();
+
+                        //Read the input stream into a String
+                        InputStream inputStream = urlConnection.getInputStream();
+                        StringBuffer buffer = new StringBuffer();
+                        if (inputStream == null) {
+                            return null;
+                        }
+                        reader = new BufferedReader(new InputStreamReader(inputStream));
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            buffer.append(line + "\n");
+                        }
+                        if (buffer.length() == 0) {
+                            return null;
+                        }
+                        JSONResult = buffer.toString();
+                        try {
+                            results.add(getCommentsFromJSON(JSONResult));
+                        } catch (JSONException E) {
+                            return null;
+                        }
+                    } catch (Exception e) {
+                        continue;
+
+                    } finally {
+                        if (urlConnection != null) {
+                            urlConnection.disconnect();
+                        }
+                        if (reader != null) {
+                            try {
+                                reader.close();
+                            } catch (final IOException e) {
+                            }
+                        }
+                    }
+                }
+                return results;
+
+            }
+        }
+        public ArrayList<String> getCommentsFromJSON(String JSONStringParam)throws JSONException{
+            JSONObject JSONString = new JSONObject(JSONStringParam);
+            JSONArray reviewsArray = JSONString.getJSONArray("results");
+            ArrayList<String> results = new ArrayList<>();
+            if(reviewsArray.length()==0)
+            {
+                results.add("No reviews found for this movie.");
+                return results;
+            }
+            for(int i = 0; i<reviewsArray.length(); i++)
+            {
+                JSONObject result = reviewsArray.getJSONObject(i);
+                results.add(result.getString("content"));
+            }
+            return results;
+
+        }
+        public String getYoutubeFromJSON(String JSONStringParam, int position) throws JSONException
+        {
+            JSONObject JSONString = new JSONObject(JSONStringParam);
+            JSONArray youtubesArray = JSONString.getJSONArray("results");
+            JSONObject youtube;
+            String result = "no videos found";
+            if(position ==0)
+            {
+                youtube = youtubesArray.getJSONObject(0);
+                result = youtube.getString("key");
+            }
+            else if(position==1)
+            {
+                if(youtubesArray.length()>1)
+                {
+                    youtube = youtubesArray.getJSONObject(1);
+                }
+                else{
+                    youtube = youtubesArray.getJSONObject(0);
+                }
+                result = youtube.getString("key");
+            }
+            return result;
+        }
+
+
+
+
+        public String[] getYoutubesFromIds(ArrayList<String> ids, int position)
+        {
+            String[] results = new String[ids.size()];
+            for(int i =0; i<ids.size(); i++)
+            {
+                HttpURLConnection urlConnection = null;
+                BufferedReader reader = null;
+                String JSONResult;
+
+                try {
+                    String urlString = null;
+                    urlString = "http://api.themoviedb.org/3/movie/" + ids.get(i) + "/videos?api_key=" + API_KEY;
+
+
+                    URL url = new URL(urlString);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+
+                    //Read the input stream into a String
+                    InputStream inputStream = urlConnection.getInputStream();
+                    StringBuffer buffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return null;
+                    }
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() == 0) {
+                        return null;
+                    }
+                    JSONResult = buffer.toString();
+                    try {
+                        results[i] = getYoutubeFromJSON(JSONResult, position);
+                    } catch (JSONException E) {
+                        results[i] = "no video found";
+                    }
+                } catch (Exception e) {
+
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (final IOException e) {
+                        }
+                    }
+                }
+            }
+            return results;
 
         }
 
