@@ -72,9 +72,10 @@
             android:id="@+id/favorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Favorite"
+            android:text="FAVORITE"
             android:paddingLeft="15dp"
             android:layout_below="@id/rating"
+            android:onClick="favorite"
             android:layout_toRightOf="@id/poster"/>
 
 
@@ -141,9 +142,11 @@
                 android:background = "@android:color/white"/>
             <TextView
                 android:text = "Reviews:"
+                android:textStyle="bold"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft = "0dp"
+                android:textColor="#ffffff"
                 android:paddingRight = "0dp"
                 android:paddingTop = "15dp"
                 android:paddingBottom = "15dp"

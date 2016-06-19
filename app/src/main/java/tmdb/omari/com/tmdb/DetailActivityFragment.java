@@ -5,8 +5,12 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,6 +38,13 @@ public class DetailActivityFragment  extends Fragment    {
     public static boolean favorite;
     public static Button fav;
     private ShareActionProvider mShareActionProvider;
+
+
+    public DetailActivityFragment(){
+
+        setHasOptionsMenu(true);
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -114,8 +125,8 @@ public class DetailActivityFragment  extends Fragment    {
                         ViewGroup.LayoutParams.WRAP_CONTENT);
                 x.height = 1;
                 divider.setLayoutParams(x);
-                divider.setBackgroundColor(Color.BLACK);
-
+                divider.setBackgroundColor(Color.WHITE);
+                tv.setTextColor(Color.WHITE);
                 tv.setText(comments.get(k));
                 layout.addView(divider);
                 layout.addView(tv);
@@ -125,7 +136,7 @@ public class DetailActivityFragment  extends Fragment    {
                     review = comments.get(k);
                 }
                 else{
-                    review+="divider123" + comments.get(k);
+                    review+="divider" + comments.get(k);
                 }
             }
 
@@ -147,6 +158,30 @@ public class DetailActivityFragment  extends Fragment    {
         }
 
         return rootView;
+    }
+
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        inflater.inflate(R.menu.menu_detail, menu);
+        MenuItem item = menu.findItem(R.id.action_share);
+
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        if(mShareActionProvider !=null)
+        {
+            mShareActionProvider.setShareIntent(createShareIntent());
+        }
+
+    }
+
+    private Intent createShareIntent()
+    {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this trailer for " + title + ": " +
+                "https://www.youtube.com/watch?v=" + youtube);
+        return shareIntent;
     }
 
 
