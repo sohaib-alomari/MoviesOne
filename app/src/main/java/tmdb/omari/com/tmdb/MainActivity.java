@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
             mTwoPane = true;
 
 
-            //TABLET = isTablet(this);
+         
             if (savedInstanceState == null) {
 
 
