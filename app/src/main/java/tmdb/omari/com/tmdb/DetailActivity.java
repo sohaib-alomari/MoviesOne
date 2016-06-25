@@ -1,5 +1,6 @@
 package tmdb.omari.com.tmdb;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -21,7 +22,7 @@ public class DetailActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_detail);
         if(savedInstanceState==null)
         {
-          getSupportFragmentManager().beginTransaction().replace(R.id.containerDetail, new DetailActivityFragment()).commit();
+          getSupportFragmentManager().beginTransaction().replace(R.id.containerDetailll, new DetailActivityFragment()).commit();
         }
 
 
@@ -75,11 +76,27 @@ public class DetailActivity extends AppCompatActivity  {
             b.setText("UNFAVORITE");
             b.getBackground().setColorFilter(Color.CYAN, PorterDuff.Mode.MULTIPLY);
 
+            ContentValues values = new ContentValues();
+            values.put(MovieProvider.NAME,DetailActivityFragment.poster);
+            values.put(MovieProvider.OVERVIEW,DetailActivityFragment.overview);
+            values.put(MovieProvider.RATING,DetailActivityFragment.rating);
+            values.put(MovieProvider.DATE,DetailActivityFragment.date);
+            values.put(MovieProvider.REVIEW,DetailActivityFragment.review);
+            values.put(MovieProvider.YOUTUBE1,DetailActivityFragment.youtube);
+            values.put(MovieProvider.YOUTUBE2,DetailActivityFragment.youtube2);
+            values.put(MovieProvider.TITLE,DetailActivityFragment.title);
+
+            getContentResolver().insert(MovieProvider.CONTENT_URI, values);
+
+
         }
         else
         {
             b.setText("FAVORITE");
             b.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+
+            getContentResolver().delete(Uri.parse("content://tmdb.omari.com.tmdb.Movies/movies"),
+                    "title=?",new String[]{DetailActivityFragment.title});
         }
     }
 

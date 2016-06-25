@@ -3,9 +3,11 @@ package tmdb.omari.com.tmdb;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -42,6 +44,7 @@ public class mainFragment extends Fragment {
     static String API_KEY="1f1e4e852b00dc660803e835ee5fc600";
     static ArrayList<String> posters;
     static boolean sortbyp=false;
+    static boolean sortByFavorites;
 
     static PreferenceChangeListener listener;
     static SharedPreferences prefs;
@@ -54,6 +57,16 @@ public class mainFragment extends Fragment {
     static ArrayList<String> ids;
     static ArrayList<Boolean> favorited;
     static ArrayList<ArrayList<String>> comments;
+
+
+    static ArrayList<String> postersF;
+    static ArrayList<String> titlesF;
+    static ArrayList<String> datesF;
+    static ArrayList<String> ratingsF;
+    static ArrayList<String> youtubesF;
+    static ArrayList<String> youtubes2F;
+    static ArrayList<ArrayList<String>> commentsF;
+    static ArrayList<String> overviewsF;
 
 
 
@@ -97,24 +110,37 @@ public class mainFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                favorited = new ArrayList<Boolean>();
-                for(int i = 0; i<titles.size();i++)
-                {
-                    favorited.add(false);
+                if (!sortByFavorites) {
+                    favorited = bindFavoritesToMovies();
+
+
+                    Intent i = new Intent(getActivity(), DetailActivity.class).
+                            putExtra("overview", overviews.get(position)).
+                            putExtra("poster", posters.get(position)).
+                            putExtra("title", titles.get(position)).
+                            putExtra("dates", dates.get(position)).
+                            putExtra("rating", ratings.get(position)).
+                            putExtra("youtube", youtubes.get(position)).
+                            putExtra("youtube2", youtubes2.get(position)).
+                            putExtra("comments", comments.get(position)).
+                            putExtra("favorite", favorited.get(position));
+                    startActivity(i);
                 }
 
+                else{
+                    Intent i = new Intent(getActivity(), DetailActivity.class).
+                            putExtra("overview", overviewsF.get(position)).
+                            putExtra("poster", postersF.get(position)).
+                            putExtra("title", titlesF.get(position)).
+                            putExtra("date", datesF.get(position)).
+                            putExtra("rating", ratingsF.get(position)).
+                            putExtra("youtube", youtubesF.get(position)).
+                            putExtra("youtube2", youtubes2F.get(position)).
+                            putExtra("comments", commentsF.get(position)).
+                            putExtra("favorite", favorited.get(position));
 
-                Intent i=new Intent(getActivity(),DetailActivity.class).
-                        putExtra("overview",overviews.get(position)).
-                        putExtra("poster", posters.get(position)).
-                        putExtra("title",titles.get(position)).
-                        putExtra("dates",dates.get(position)).
-                        putExtra("rating",ratings.get(position)).
-                        putExtra("youtube",youtubes.get(position)).
-                        putExtra("youtube2",youtubes2.get(position)).
-                        putExtra("comments",comments.get(position)).
-                        putExtra("favorite",favorited.get(position));
-                startActivity(i);
+                    startActivity(i);
+                }
 
             }
         });
@@ -127,48 +153,67 @@ public class mainFragment extends Fragment {
     public void onStart() {
 
         super.onStart();
-        prefs= PreferenceManager.getDefaultSharedPreferences( getActivity());
-        listener= new PreferenceChangeListener();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        listener = new PreferenceChangeListener();
         prefs.registerOnSharedPreferenceChangeListener(listener);
 
-        if(prefs.getString("sortby","").equals("popularity"))
-        {
+        if (prefs.getString("sortby", "").equals("popularity")) {
             getActivity().setTitle("Most Popular Movies");
-            sortbyp=true;
+            sortbyp = true;
+            sortByFavorites = false;
 
-        }
-        else if(prefs.getString("sortby","").equals("rating"))
-        {
+        } else if (prefs.getString("sortby", "").equals("rating")) {
             getActivity().setTitle("Highest Rated Movies");
-            sortbyp=false;
+            sortbyp = false;
+            sortByFavorites = false;
 
+        } else if (prefs.getString("sortby", "").equals("favorites")) {
+            getActivity().setTitle("Favorited Movies");
+            sortbyp = false;
+            sortByFavorites = true;
         }
 
 
+        loadFavoritesData();
+        TextView txt = new TextView(getActivity());
+        RelativeLayout relativeLayout = (RelativeLayout) getActivity().findViewById(R.id.relativelayout);
 
-        TextView txt=new TextView(getActivity());
-        RelativeLayout relativeLayout=(RelativeLayout)getActivity().findViewById(R.id.relativelayout);
-
-
-
-
-
-        if (isNetworkAvailable()) {
-            //we made it work in the background thread because it can freeze the main thread till all the images are loaded so it needs to be done in the background
-            gridView.setVisibility(GridView.VISIBLE);
-           new ImageLoadTask().execute();
-        }
-
-        //just in case there is no internet Connection
-        else {
-            TextView tv = new TextView(getActivity());
-             relativeLayout = (RelativeLayout) getActivity().findViewById(R.id.relativelayout);
-            tv.setText("There is No Internet Connection!");
-
-            if (relativeLayout.getChildCount() == 1) {
-                relativeLayout.addView(tv);
+        if (sortByFavorites) {
+            if (postersF.size() == 0) {
+                txt.setText("You have no favorites movies.");
+                if (relativeLayout.getChildCount() == 1)
+                    relativeLayout.addView(txt);
+                gridView.setVisibility(GridView.GONE);
+            } else {
+                gridView.setVisibility(GridView.VISIBLE);
+                relativeLayout.removeView(txt);
             }
-            gridView.setVisibility(GridView.GONE);
+            if (postersF != null && getActivity() != null) {
+                ImageAdapter adapter = new ImageAdapter(getActivity(), postersF, width);
+                gridView.setAdapter(adapter);
+            }
+        } else {
+            gridView.setVisibility(GridView.VISIBLE);
+            relativeLayout.removeView(txt);
+
+
+            if (isNetworkAvailable()) {
+                //we made it work in the background thread because it can freeze the main thread till all the images are loaded so it needs to be done in the background
+                gridView.setVisibility(GridView.VISIBLE);
+                new ImageLoadTask().execute();
+            }
+
+            //just in case there is no internet Connection
+            else {
+                TextView tv = new TextView(getActivity());
+                relativeLayout = (RelativeLayout) getActivity().findViewById(R.id.relativelayout);
+                tv.setText("There is No Internet Connection!");
+
+                if (relativeLayout.getChildCount() == 1) {
+                    relativeLayout.addView(tv);
+                }
+                gridView.setVisibility(GridView.GONE);
+            }
         }
     }
 
@@ -545,6 +590,65 @@ public class mainFragment extends Fragment {
             onStart();
 
         }
+    }
+
+
+
+    public void loadFavoritesData()
+    {
+        String URL="content://tmdb.omari.com.tmdb.Movies/movies" ;
+        Uri movies = Uri.parse(URL);
+        Cursor c = getActivity().getContentResolver().query(movies,null,null,null,"title");
+        postersF = new ArrayList<String>();
+        titlesF = new ArrayList<String>();
+        datesF = new ArrayList<String>();
+        overviewsF = new ArrayList<String>();
+        favorited = new ArrayList<Boolean>();
+        commentsF = new ArrayList<ArrayList<String>>();
+        youtubesF = new ArrayList<String>();
+        youtubes2F = new ArrayList<String>();
+        ratingsF = new ArrayList<String>();
+        if(c==null) return;
+        while(c.moveToNext())
+        {
+            postersF.add(c.getString(c.getColumnIndex(MovieProvider.NAME)));
+            commentsF.add(convertStringToArrayList(c.getString(c.getColumnIndex(MovieProvider.REVIEW))));
+            titlesF.add(c.getString(c.getColumnIndex(MovieProvider.TITLE)));
+            overviewsF.add(c.getString(c.getColumnIndex(MovieProvider.OVERVIEW)));
+            youtubesF.add(c.getString(c.getColumnIndex(MovieProvider.YOUTUBE1)));
+            youtubes2F.add(c.getString(c.getColumnIndex(MovieProvider.YOUTUBE2)));
+            datesF.add(c.getString(c.getColumnIndex(MovieProvider.DATE)));
+            ratingsF.add(c.getString(c.getColumnIndex(MovieProvider.RATING)));
+            favorited.add(true);
+
+        }
+    }
+
+    public ArrayList<String> convertStringToArrayList(String s)
+    {
+        ArrayList<String> result = new ArrayList<>(Arrays.asList(s.split("divider")));
+        return result;
+    }
+
+
+    public ArrayList<Boolean> bindFavoritesToMovies()
+    {
+        ArrayList<Boolean> result = new ArrayList<>();
+        for(int i =0; i<titles.size();i++)
+        {
+            result.add(false);
+        }
+        for(String favoritedTitles: titlesF)
+        {
+            for(int x = 0; x<titles.size(); x++)
+            {
+                if(favoritedTitles.equals(titles.get(x)))
+                {
+                    result.set(x,true);
+                }
+            }
+        }
+        return result;
     }
 
 

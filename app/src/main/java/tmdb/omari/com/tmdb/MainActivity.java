@@ -8,12 +8,16 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
     public static boolean TABLET = false;
+    private final static String TAG = "Omari: <" + MainActivity.class.getSimpleName() + ">";
+
+    public boolean mTwoPane;
 
     public boolean isTablet(Context context)
     {
@@ -27,16 +31,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null){
-           getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, new mainFragment())
-                    .commit();
 
+
+        if (findViewById(R.id.containerDetailll) != null) {
+
+            mTwoPane = true;
+
+
+            //TABLET = isTablet(this);
+            if (savedInstanceState == null) {
+
+
+               getSupportFragmentManager().beginTransaction()
+                       .replace(R.id.containerDetailll, new DetailActivityFragment(),
+                               TAG)
+                        .commit();
+
+
+
+            }
+        } else {
+            mTwoPane = false;
+            Log.v(TAG, "---*** NOT TWO-PANE MODE ***---");
         }
-
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

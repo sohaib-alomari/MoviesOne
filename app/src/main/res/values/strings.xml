@@ -11,12 +11,14 @@
 
         <item> Popularity</item>
         <item> Rating</item>
+        <item>Favorites</item>
 
     </string-array>
 
     <string-array name="pref_values" translatable="false">
         <item> popularity</item>
         <item> rating</item>
+        <item>favorites</item>
 
 
     </string-array>
