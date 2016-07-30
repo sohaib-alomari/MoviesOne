@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
-
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -24,8 +23,10 @@
         <activity android:name=".DetailActivity" />
 
         <provider
-            android:authorities="tmdb.omari.com.tmdb.Movies"
-            android:name="MovieProvider"></provider>
+            android:name=".MovieProvider"
+            android:authorities="tmdb.omari.com.tmdb.Movies" />
+
+
     </application>
 
 </manifest>

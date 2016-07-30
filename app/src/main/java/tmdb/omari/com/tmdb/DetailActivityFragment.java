@@ -1,12 +1,16 @@
 package tmdb.omari.com.tmdb;
 
+
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,59 +42,111 @@ public class DetailActivityFragment  extends Fragment    {
     public static boolean favorite;
     public static Button fav;
     private ShareActionProvider mShareActionProvider;
+    static final String DETAIL_MOVIE = "DETAIL_MOVIE";
+    public static final String TAG = DetailActivityFragment.class.getSimpleName();
 
+    private String mMovie;
+    public  Movie movie;
+
+    View rootView;
 
     public DetailActivityFragment(){
 
         setHasOptionsMenu(true);
     }
 
+    private void setTitle(){
+        movie=new Movie();
+
+        TextView txt = (TextView) rootView.findViewById(R.id.title);
+        txt.setText(movie.getTitle());
+      // Log.v("title",  movie.getTitle());
+
+    }
+
+    private void setOverview()
+    {
+
+        TextView description =(TextView) rootView.findViewById(R.id.desc);
+        description.setText("Details:"+"\n"+movie.getOverview() );
+    }
+
+   private void setDates()
+    {
+
+        TextView txt =(TextView) rootView.findViewById(R.id.date);
+        txt.setText("Release Date: "+movie.getRelease_date() );
+
+    }
+
+    void setRating()
+    {
+
+        TextView txt =(TextView) rootView.findViewById(R.id.rating);
+        txt.setText(movie.getRating() );
+
+    }
+
+    private void setPoster()
+    {
+        //poster=i.getStringExtra("poster");
+        ImageView img=(ImageView)rootView.findViewById(R.id.poster);
+
+        Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w185/" + movie.getPoster_path()).resize(
+                mainFragment.width, (int)(mainFragment.width*1.5)).into(img);
+    }
+
+    void setTrailer()
+    {
+            youtube = movie.getYoutube();
+    }
+    void setTrailer2()
+    {
+        youtube2 = movie.getYoutube2();
+    }
+
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView= inflater.inflate(R.layout.activity_detail_activity_fragment, container, false);
-        getActivity().setTitle("Movie Detail");
+
+         rootView= inflater.inflate(R.layout.activity_detail_activity_fragment, container, false);
+        //getActivity().setTitle(movie.getTitle());
+        setTitle();
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            if(arguments.containsKey("title")) {
+                mMovie = arguments.getString("title");
+                Log.v("arg", "*****arg  OK*****");
+                title = mMovie;
+
+
+            }
+        }
+
+
+
+
 
         Intent i=getActivity().getIntent();
 
 
 
-        if(i != null && i.hasExtra("dates"))
-        {
-            date=i.getStringExtra("dates");
-            TextView txt =(TextView) rootView.findViewById(R.id.date);
-            txt.setText("Release Date: "+date );
-
+        setTitle();
+        setPoster();
+        setOverview();
+        setDates();
+        setRating();
+        setTrailer();
+        setTrailer2();
+        try {
+            setComments();
         }
-
-        if(i != null && i.hasExtra("rating"))
+        catch (Exception xception)
         {
-            rating=i.getStringExtra("rating");
-            TextView txt =(TextView) rootView.findViewById(R.id.rating);
-            txt.setText(rating );
-
-        }
-        if(i != null && i.hasExtra("overview"))
-        {
-            overview=i.getStringExtra("overview");
-            TextView description =(TextView) rootView.findViewById(R.id.desc);
-            description.setText("Details:"+"\n"+overview );
-        }
-        if(i != null && i.hasExtra("title"))
-        {
-            title=i.getStringExtra("title");
-            TextView txt =(TextView) rootView.findViewById(R.id.title);
-            txt.setText(title );
-
-        }
-        if(i != null && i.hasExtra("poster"))
-        {
-            poster=i.getStringExtra("poster");
-            ImageView img=(ImageView)rootView.findViewById(R.id.poster);
-
-            Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w185/" + poster).resize(
-                    mainFragment.width, (int)(mainFragment.width*1.5)).into(img);
 
         }
 
@@ -98,66 +154,80 @@ public class DetailActivityFragment  extends Fragment    {
 
 
 
-        if(i !=null && i.hasExtra("youtube"))
-        {
-            youtube = i.getStringExtra("youtube");
+        Button trailer=(Button)rootView.findViewById(R.id.trailer1);
+        trailer.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                //Do stuff here
+                Intent viewTrailer=new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+DetailActivityFragment.youtube));
+                startActivity(viewTrailer);
 
-        }
-        if(i !=null && i.hasExtra("youtube2"))
-        {
-            youtube2 = i.getStringExtra(youtube2);
-        }
-        if(i !=null && i.hasExtra("comments"))
-        {
-            comments = i.getStringArrayListExtra("comments");
-            for(int k = 0; k<comments.size();k++)
-            {
-                LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.linear);
-                View divider = new View(getActivity());
-                TextView tv = new TextView(getActivity());
-                RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-                tv.setLayoutParams(p);
-                int paddingPixel = 10;
-                float density = getActivity().getResources().getDisplayMetrics().density;
-                int paddingDP = (int) (paddingPixel * density);
-                tv.setPadding(0, paddingDP, 0, paddingDP);
-                RelativeLayout.LayoutParams x = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-                x.height = 1;
-                divider.setLayoutParams(x);
-                divider.setBackgroundColor(Color.WHITE);
-                tv.setTextColor(Color.WHITE);
-                tv.setText(comments.get(k));
-                layout.addView(divider);
-                layout.addView(tv);
+            }
+        });
 
-                if(review == null)
+        Button trailer2=(Button)rootView.findViewById(R.id.trailer2);
+        trailer2.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                //Do stuff here
+                Intent viewTrailer=new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+DetailActivityFragment.youtube2));
+                startActivity(viewTrailer);
+
+            }
+        });
+
+
+
+fav = (Button)rootView.findViewById(R.id.favorite);
+        fav.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                //Do stuff here
+
+
+                if(fav.getText().equals("FAVORITE"))
                 {
-                    review = comments.get(k);
-                }
-                else{
-                    review+="divider" + comments.get(k);
-                }
-            }
+                    //code to store movie data in database
+                   fav.setText("UNFAVORITEdd");
+                    fav.getBackground().setColorFilter(Color.CYAN, PorterDuff.Mode.MULTIPLY);
 
-        }
-        fav = (Button)rootView.findViewById(R.id.favorite);
-        if(i !=null && i.hasExtra("favorite"))
-        {
-            favorite = i.getBooleanExtra("favorite", false);
-            if(!favorite)
-            {
-                fav.setText("FAVORITE");
-                fav.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+                    ContentValues values = new ContentValues();
+                    values.put(MovieProvider.NAME,DetailActivityFragment.poster);
+                    values.put(MovieProvider.OVERVIEW,DetailActivityFragment.overview);
+                    values.put(MovieProvider.RATING,DetailActivityFragment.rating);
+                    values.put(MovieProvider.DATE,DetailActivityFragment.date);
+                    values.put(MovieProvider.REVIEW,DetailActivityFragment.review);
+                    values.put(MovieProvider.YOUTUBE1,DetailActivityFragment.youtube);
+                    values.put(MovieProvider.YOUTUBE2,DetailActivityFragment.youtube2);
+                    values.put(MovieProvider.TITLE,DetailActivityFragment.title);
+
+
+
+                   getContext().getContentResolver().insert(MovieProvider.CONTENT_URI, values);
+
+
+                }
+                else
+                {
+                   fav.setText("FAVORITE");
+                    fav.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+
+                    // getContentResolver().delete(Uri.parse("content://tmdb.omari.com.tmdb.Movies/movies"),
+                    // "title=?",new String[]{DetailActivityFragment.title});
+                }
+
+
+
             }
-            else
-            {
-                fav.setText("UNFAVORITE");
-                fav.getBackground().setColorFilter(Color.CYAN, PorterDuff.Mode.MULTIPLY);
-            }
-        }
+        });
+
+
 
         return rootView;
+    }
+
+
+    public void trailer1(View v)
+    {
+        Intent viewTrailer=new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+DetailActivityFragment.youtube));
+        startActivity(viewTrailer);
     }
 
 
@@ -183,6 +253,45 @@ public class DetailActivityFragment  extends Fragment    {
                 "https://www.youtube.com/watch?v=" + youtube);
         return shareIntent;
     }
+
+
+   void setComments()
+    {
+        comments = movie.getComments();
+        for(int k = 0; k<comments.size();k++)
+        {
+            LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.linear);
+            View divider = new View(getActivity());
+            TextView tv = new TextView(getActivity());
+            RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+            tv.setLayoutParams(p);
+            int paddingPixel = 10;
+            float density = getActivity().getResources().getDisplayMetrics().density;
+            int paddingDP = (int) (paddingPixel * density);
+            tv.setPadding(0, paddingDP, 0, paddingDP);
+            RelativeLayout.LayoutParams x = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            x.height = 1;
+            divider.setLayoutParams(x);
+            divider.setBackgroundColor(Color.WHITE);
+            tv.setTextColor(Color.WHITE);
+            tv.setText(comments.get(k));
+            layout.addView(divider);
+            layout.addView(tv);
+
+            if(review == null)
+            {
+                review = comments.get(k);
+            }
+            else{
+                review+="divider" + comments.get(k);
+            }
+        }
+
+    }
+
+
+
 
 
 }

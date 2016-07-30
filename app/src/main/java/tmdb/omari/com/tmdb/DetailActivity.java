@@ -1,18 +1,15 @@
 package tmdb.omari.com.tmdb;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
-public class DetailActivity extends AppCompatActivity  {
+
+
+public class DetailActivity extends AppCompatActivity {
 
 
 
@@ -22,7 +19,14 @@ public class DetailActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_detail);
         if(savedInstanceState==null)
         {
-          getSupportFragmentManager().beginTransaction().replace(R.id.containerDetailll, new DetailActivityFragment()).commit();
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(DetailActivityFragment.DETAIL_MOVIE, getIntent().getParcelableExtra(DetailActivityFragment.DETAIL_MOVIE));
+
+            DetailActivityFragment fragment = new DetailActivityFragment();
+            fragment.setArguments(arguments);
+            Log.v("DetailActivity", "---***IN Detail Activity***---");
+
+          getSupportFragmentManager().beginTransaction().add(R.id.containerDetailll, fragment).commit();
         }
 
 
@@ -54,7 +58,7 @@ public class DetailActivity extends AppCompatActivity  {
     }
 
 
-
+/*
     public void trailer1(View v)
     {
             Intent viewTrailer=new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+DetailActivityFragment.youtube));
@@ -73,7 +77,7 @@ public class DetailActivity extends AppCompatActivity  {
         if(b.getText().equals("FAVORITE"))
         {
             //code to store movie data in database
-            b.setText("UNFAVORITE");
+            b.setText("UNFAVORITEe");
             b.getBackground().setColorFilter(Color.CYAN, PorterDuff.Mode.MULTIPLY);
 
             ContentValues values = new ContentValues();
@@ -95,10 +99,11 @@ public class DetailActivity extends AppCompatActivity  {
             b.setText("FAVORITE");
             b.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
 
-            getContentResolver().delete(Uri.parse("content://tmdb.omari.com.tmdb.Movies/movies"),
-                    "title=?",new String[]{DetailActivityFragment.title});
+           getContentResolver().delete(Uri.parse("content://tmdb.omari.com.tmdb.Movies/movies"),
+                "title=?",new String[]{DetailActivityFragment.title});
         }
     }
+    */
 
 
 }

@@ -19,8 +19,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +68,9 @@ public class mainFragment extends Fragment {
     static ArrayList<ArrayList<String>> commentsF;
     static ArrayList<String> overviewsF;
 
+    Movie movieItem = new Movie();
 
+public static int positionn;
 
 
 
@@ -84,6 +86,9 @@ public class mainFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+
+
 
         //We have to get the size of the screen to determain if it's a tablet of a phone
         WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
@@ -109,11 +114,33 @@ public class mainFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                positionn=position;
                 if (!sortByFavorites) {
                     favorited = bindFavoritesToMovies();
+                    movieItem.setTitle(titles.get(position));
+                    movieItem.setPoster_path(posters.get(position));
+                    movieItem.setOverview(overviews.get(position));
+                    movieItem.setRelease_date(dates.get(position));
+
+                    movieItem.setRating(ratings.get(position));
+
+                    movieItem.setYoutube(youtubes.get(position));
+
+                    movieItem.setYoutube2(youtubes2.get(position));
+
+                    movieItem.setTitle(titles.get(position));
+
+                    movieItem.setComments(comments.get(position));
 
 
+                    movieItem.setFav(favorited.get(position));
+
+                }
+
+                if (!sortByFavorites) {
+
+
+                   favorited = bindFavoritesToMovies();
                     Intent i = new Intent(getActivity(), DetailActivity.class).
                             putExtra("overview", overviews.get(position)).
                             putExtra("poster", posters.get(position)).
@@ -124,10 +151,16 @@ public class mainFragment extends Fragment {
                             putExtra("youtube2", youtubes2.get(position)).
                             putExtra("comments", comments.get(position)).
                             putExtra("favorite", favorited.get(position));
+
+
+                  ((Callback) getActivity()).onItemSelected(titles.get(position),"title");
+
+                    
                     startActivity(i);
                 }
 
                 else{
+                    //favorited = bindFavoritesToMovies();
                     Intent i = new Intent(getActivity(), DetailActivity.class).
                             putExtra("overview", overviewsF.get(position)).
                             putExtra("poster", postersF.get(position)).
@@ -173,31 +206,32 @@ public class mainFragment extends Fragment {
             sortByFavorites = true;
         }
 
-
+        //movieItem.setFav(true);
         loadFavoritesData();
-        TextView txt = new TextView(getActivity());
-        RelativeLayout relativeLayout = (RelativeLayout) getActivity().findViewById(R.id.relativelayout);
+
+       // TextView txt = new TextView(getActivity());
+
 
         if (sortByFavorites) {
             if (postersF.size() == 0) {
-                txt.setText("You have no favorites movies.");
-                if (relativeLayout.getChildCount() == 1)
-                    relativeLayout.addView(txt);
-                gridView.setVisibility(GridView.GONE);
+               // txt.setText("You have no favorites movies.");
+
+                //gridView.setVisibility(GridView.GONE);
             } else {
                 gridView.setVisibility(GridView.VISIBLE);
-                relativeLayout.removeView(txt);
+
             }
-            if (postersF != null && getActivity() != null) {
-                ImageAdapter adapter = new ImageAdapter(getActivity(), postersF, width);
+            if (postersF != null ) {
+                ImageAdapter adapter = new ImageAdapter(getActivity(), posters, width);
                 gridView.setAdapter(adapter);
-            }
-        } else {
-            gridView.setVisibility(GridView.VISIBLE);
-            relativeLayout.removeView(txt);
+                Toast.makeText(getContext(), "not NULL", Toast.LENGTH_SHORT).show();
+        }
+    } else {
+        gridView.setVisibility(GridView.VISIBLE);
 
 
-            if (isNetworkAvailable()) {
+
+        if (isNetworkAvailable()) {
                 //we made it work in the background thread because it can freeze the main thread till all the images are loaded so it needs to be done in the background
                 gridView.setVisibility(GridView.VISIBLE);
                 new ImageLoadTask().execute();
@@ -206,12 +240,10 @@ public class mainFragment extends Fragment {
             //just in case there is no internet Connection
             else {
                 TextView tv = new TextView(getActivity());
-                relativeLayout = (RelativeLayout) getActivity().findViewById(R.id.relativelayout);
+
                 tv.setText("There is No Internet Connection!");
 
-                if (relativeLayout.getChildCount() == 1) {
-                    relativeLayout.addView(tv);
-                }
+
                 gridView.setVisibility(GridView.GONE);
             }
         }
@@ -225,6 +257,8 @@ public class mainFragment extends Fragment {
         return netInfo != null && netInfo.isConnected();
 
     }
+
+
 
 
     public class ImageLoadTask extends AsyncTask<Void, Void, ArrayList<String>> {
@@ -562,6 +596,10 @@ public class mainFragment extends Fragment {
             for(int i = 0; i<moviesArray.length();i++)
             {
                 JSONObject movie = moviesArray.getJSONObject(i);
+
+
+               // movieItem.setOriginal_title("Sohaib");
+
                 if(param.equals("vote_average"))
                 {
                     Double number = movie.getDouble("vote_average");
@@ -650,6 +688,18 @@ public class mainFragment extends Fragment {
         }
         return result;
     }
+
+
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         * @param movieData
+         */
+        public void onItemSelected(String movieData,String key);
+    }
+
+
+
 
 
 }

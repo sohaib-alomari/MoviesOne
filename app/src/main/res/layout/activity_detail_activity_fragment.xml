@@ -76,7 +76,7 @@
             android:text="FAVORITE"
             android:paddingLeft="15dp"
             android:layout_below="@id/rating"
-            android:onClick="favorite"
+
             android:layout_toRightOf="@id/poster"/>
 
 

@@ -1,7 +1,7 @@
 package tmdb.omari.com.tmdb;
 
 
-//Sohaib Alomari Movie Project Part 1
+//Sohaib Alomari MovieContract Project Part 2
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,18 +12,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements mainFragment.Callback  {
 
     public static boolean TABLET = false;
     private final static String TAG = "Omari: <" + MainActivity.class.getSimpleName() + ">";
-
-    public boolean mTwoPane;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public boolean mTwoPane=true;
 
     public boolean isTablet(Context context)
     {
         boolean xlarge = ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)==4);
         boolean large = ((context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)==Configuration.SCREENLAYOUT_SIZE_LARGE);
         return(xlarge||large);
+
 
     }
 
@@ -34,14 +35,14 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-
+        isTablet(this);
 
         if (findViewById(R.id.containerDetailll) != null) {
 
             mTwoPane = true;
 
+            Log.v("TwoPane", "---***IN TWO-PANE MODE ***---");
 
-         
             if (savedInstanceState == null) {
 
 
@@ -83,5 +84,35 @@ public class MainActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(String movie,String key) {
+        if (mTwoPane) {
+            Bundle arguments = new Bundle();
+            //arguments.putString(DetailActivityFragment.DETAIL_MOVIE, movie);
+            if(key.equals("title"))
+            {
+                arguments.putString("title", movie);
+            }
+
+
+            DetailActivityFragment fragment = new DetailActivityFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.containerDetailll, fragment, DetailActivityFragment.TAG)
+                    .commit();
+            Log.v("CallBack", "---***CALL BACK OK ***---");
+        } else {
+            Bundle arguments = new Bundle();
+            if(key.equals("title"))
+            {
+                arguments.putString("title", movie);
+            }
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .putExtra(DetailActivityFragment.DETAIL_MOVIE, movie);
+            startActivity(intent);
+        }
     }
 }
