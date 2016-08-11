@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.HashMap;
 
@@ -192,6 +193,8 @@ public class MovieProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri );
         }
         getContext().getContentResolver().notifyChange(uri, null);
+        Log.v("DATABASE","IN UPDATE");
+
         return count;
     }
 

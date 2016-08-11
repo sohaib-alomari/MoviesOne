@@ -23,7 +23,7 @@
         <activity android:name=".DetailActivity" />
 
         <provider
-            android:name=".MovieProvider"
+            android:name="MovieProvider"
             android:authorities="tmdb.omari.com.tmdb.Movies" />
 
 

@@ -33,13 +33,15 @@ public class Movie implements Parcelable {
     }
     private Movie(Parcel parcel){
         this.id = parcel.readInt();
-       // this.title = parcel.readString();
+       this.title = parcel.readString();
         this.original_title = parcel.readString();
         this.backdrop_path = parcel.readString();
         this.poster_path = parcel.readString();
         this.overview = parcel.readString();
         this.rating = parcel.readString();
         this.release_date = parcel.readString();
+
+
     }
 
     public int getId() {
@@ -151,6 +153,7 @@ public class Movie implements Parcelable {
     }
 
     public void setComments(ArrayList<String> comments) {
+
         this.comments = comments;
     }
 

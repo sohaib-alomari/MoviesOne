@@ -1,7 +1,6 @@
 package tmdb.omari.com.tmdb;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Point;
@@ -69,6 +68,7 @@ public class mainFragment extends Fragment {
     static ArrayList<String> overviewsF;
 
     Movie movieItem = new Movie();
+    public static String dbb;
 
 public static int positionn;
 
@@ -116,7 +116,12 @@ public static int positionn;
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 positionn=position;
                 if (!sortByFavorites) {
-                    favorited = bindFavoritesToMovies();
+
+
+                        favorited = bindFavoritesToMovies();
+
+
+
                     movieItem.setTitle(titles.get(position));
                     movieItem.setPoster_path(posters.get(position));
                     movieItem.setOverview(overviews.get(position));
@@ -134,45 +139,35 @@ public static int positionn;
 
 
                     movieItem.setFav(favorited.get(position));
+                    ((Callback) getActivity()).onItemSelected(titles.get(position),"title");
 
                 }
 
-                if (!sortByFavorites) {
 
-
-                   favorited = bindFavoritesToMovies();
-                    Intent i = new Intent(getActivity(), DetailActivity.class).
-                            putExtra("overview", overviews.get(position)).
-                            putExtra("poster", posters.get(position)).
-                            putExtra("title", titles.get(position)).
-                            putExtra("dates", dates.get(position)).
-                            putExtra("rating", ratings.get(position)).
-                            putExtra("youtube", youtubes.get(position)).
-                            putExtra("youtube2", youtubes2.get(position)).
-                            putExtra("comments", comments.get(position)).
-                            putExtra("favorite", favorited.get(position));
-
-
-                  ((Callback) getActivity()).onItemSelected(titles.get(position),"title");
-
-                    
-                    startActivity(i);
-                }
 
                 else{
-                    //favorited = bindFavoritesToMovies();
-                    Intent i = new Intent(getActivity(), DetailActivity.class).
-                            putExtra("overview", overviewsF.get(position)).
-                            putExtra("poster", postersF.get(position)).
-                            putExtra("title", titlesF.get(position)).
-                            putExtra("date", datesF.get(position)).
-                            putExtra("rating", ratingsF.get(position)).
-                            putExtra("youtube", youtubesF.get(position)).
-                            putExtra("youtube2", youtubes2F.get(position)).
-                            putExtra("comments", commentsF.get(position)).
-                            putExtra("favorite", favorited.get(position));
 
-                    startActivity(i);
+
+                    movieItem.setPoster_path(postersF.get(position));
+                    movieItem.setOverview(overviewsF.get(position));
+                    movieItem.setRelease_date(datesF.get(position));
+
+                    movieItem.setRating(ratingsF.get(position));
+
+                    movieItem.setYoutube(youtubesF.get(position));
+
+                    movieItem.setYoutube2(youtubes2F.get(position));
+
+                    movieItem.setTitle(titlesF.get(position));
+
+                    movieItem.setComments(commentsF.get(position));
+
+
+                    movieItem.setFav(favorited.get(position));
+                    ((Callback) getActivity()).onItemSelected(titles.get(position),"title");
+
+
+
                 }
 
             }
@@ -181,6 +176,9 @@ public static int positionn;
 
         return rootView;
     }
+
+
+
 
     @Override
     public void onStart() {
@@ -206,10 +204,15 @@ public static int positionn;
             sortByFavorites = true;
         }
 
-        //movieItem.setFav(true);
-        loadFavoritesData();
+        try {
+            loadFavoritesData();
+        }
+        catch (Exception e)
+        {
 
-       // TextView txt = new TextView(getActivity());
+        }
+
+
 
 
         if (sortByFavorites) {
@@ -221,10 +224,10 @@ public static int positionn;
                 gridView.setVisibility(GridView.VISIBLE);
 
             }
-            if (postersF != null ) {
-                ImageAdapter adapter = new ImageAdapter(getActivity(), posters, width);
+            if (postersF != null&&getActivity()!=null) {
+                ImageAdapter adapter = new ImageAdapter(getActivity(), postersF, width);
                 gridView.setAdapter(adapter);
-                Toast.makeText(getContext(), "not NULL", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),dbb, Toast.LENGTH_SHORT).show();
         }
     } else {
         gridView.setVisibility(GridView.VISIBLE);
@@ -634,6 +637,9 @@ public static int positionn;
 
     public void loadFavoritesData()
     {
+        Context applicationContext = DetailActivity.getContextOfApplication();
+
+
         String URL="content://tmdb.omari.com.tmdb.Movies/movies" ;
         Uri movies = Uri.parse(URL);
         Cursor c = getActivity().getContentResolver().query(movies,null,null,null,"title");
@@ -649,6 +655,9 @@ public static int positionn;
         if(c==null) return;
         while(c.moveToNext())
         {
+
+            dbb=c.getString(c.getColumnIndex(MovieProvider.NAME));
+
             postersF.add(c.getString(c.getColumnIndex(MovieProvider.NAME)));
             commentsF.add(convertStringToArrayList(c.getString(c.getColumnIndex(MovieProvider.REVIEW))));
             titlesF.add(c.getString(c.getColumnIndex(MovieProvider.TITLE)));
@@ -658,6 +667,7 @@ public static int positionn;
             datesF.add(c.getString(c.getColumnIndex(MovieProvider.DATE)));
             ratingsF.add(c.getString(c.getColumnIndex(MovieProvider.RATING)));
             favorited.add(true);
+
 
         }
     }
@@ -669,23 +679,20 @@ public static int positionn;
     }
 
 
-    public ArrayList<Boolean> bindFavoritesToMovies()
-    {
+    public ArrayList<Boolean> bindFavoritesToMovies() {
         ArrayList<Boolean> result = new ArrayList<>();
-        for(int i =0; i<titles.size();i++)
-        {
+        for (int i = 0; i < titles.size(); i++) {
             result.add(false);
         }
-        for(String favoritedTitles: titlesF)
-        {
-            for(int x = 0; x<titles.size(); x++)
-            {
-                if(favoritedTitles.equals(titles.get(x)))
-                {
-                    result.set(x,true);
+        if (titlesF != null){
+            for (String favoritedTitles : titlesF) {
+                for (int x = 0; x < titles.size(); x++) {
+                    if (favoritedTitles.equals(titles.get(x))) {
+                        result.set(x, true);
+                    }
                 }
             }
-        }
+    }
         return result;
     }
 

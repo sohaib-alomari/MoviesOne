@@ -2,6 +2,7 @@ package tmdb.omari.com.tmdb;
 
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -44,6 +45,7 @@ public class DetailActivityFragment  extends Fragment    {
     private ShareActionProvider mShareActionProvider;
     static final String DETAIL_MOVIE = "DETAIL_MOVIE";
     public static final String TAG = DetailActivityFragment.class.getSimpleName();
+    Context applicationContext;
 
     private String mMovie;
     public  Movie movie;
@@ -85,6 +87,21 @@ public class DetailActivityFragment  extends Fragment    {
         TextView txt =(TextView) rootView.findViewById(R.id.rating);
         txt.setText(movie.getRating() );
 
+    }
+
+    void favBtn(){
+
+        if(!movie.getfav())
+        {
+            fav.setText("FAVORITE");
+            fav.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+
+        }
+        else{
+
+            fav.setText("UNFAVORITE");
+            fav.getBackground().setColorFilter(Color.CYAN, PorterDuff.Mode.MULTIPLY);
+        }
     }
 
     private void setPoster()
@@ -134,22 +151,24 @@ public class DetailActivityFragment  extends Fragment    {
         Intent i=getActivity().getIntent();
 
 
+    try{
 
-        setTitle();
-        setPoster();
-        setOverview();
-        setDates();
-        setRating();
-        setTrailer();
-        setTrailer2();
+    }
+    catch(Exception e)
+    {
+
+    }
+
+
+
+
         try {
-            setComments();
+            favBtn();
         }
-        catch (Exception xception)
+        catch (Exception e)
         {
 
         }
-
 
 
 
@@ -163,6 +182,7 @@ public class DetailActivityFragment  extends Fragment    {
 
             }
         });
+
 
         Button trailer2=(Button)rootView.findViewById(R.id.trailer2);
         trailer2.setOnClickListener(new Button.OnClickListener() {
@@ -185,22 +205,24 @@ fav = (Button)rootView.findViewById(R.id.favorite);
                 if(fav.getText().equals("FAVORITE"))
                 {
                     //code to store movie data in database
-                   fav.setText("UNFAVORITEdd");
+                   fav.setText("UNFAVORITE");
                     fav.getBackground().setColorFilter(Color.CYAN, PorterDuff.Mode.MULTIPLY);
 
                     ContentValues values = new ContentValues();
-                    values.put(MovieProvider.NAME,DetailActivityFragment.poster);
-                    values.put(MovieProvider.OVERVIEW,DetailActivityFragment.overview);
-                    values.put(MovieProvider.RATING,DetailActivityFragment.rating);
-                    values.put(MovieProvider.DATE,DetailActivityFragment.date);
-                    values.put(MovieProvider.REVIEW,DetailActivityFragment.review);
+                    values.put(MovieProvider.NAME,movie.getPoster_path());
+                    values.put(MovieProvider.OVERVIEW,movie.getOverview());
+                    values.put(MovieProvider.RATING,movie.getRating());
+                    values.put(MovieProvider.DATE,movie.getRelease_date());
+                    values.put(MovieProvider.REVIEW,convertyListToString(comments));
                     values.put(MovieProvider.YOUTUBE1,DetailActivityFragment.youtube);
                     values.put(MovieProvider.YOUTUBE2,DetailActivityFragment.youtube2);
-                    values.put(MovieProvider.TITLE,DetailActivityFragment.title);
+                    values.put(MovieProvider.TITLE,movie.getTitle());
+
+                    applicationContext = DetailActivity.getContextOfApplication();
+                    //applicationContext.getContentResolver();
 
 
-
-                   getContext().getContentResolver().insert(MovieProvider.CONTENT_URI, values);
+                    getActivity().getContentResolver().insert(MovieProvider.CONTENT_URI, values);
 
 
                 }
@@ -209,8 +231,8 @@ fav = (Button)rootView.findViewById(R.id.favorite);
                    fav.setText("FAVORITE");
                     fav.getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
 
-                    // getContentResolver().delete(Uri.parse("content://tmdb.omari.com.tmdb.Movies/movies"),
-                    // "title=?",new String[]{DetailActivityFragment.title});
+                    getActivity().getContentResolver().delete(Uri.parse("content://tmdb.omari.com.tmdb.Movies/movies"),
+                     "title=?",new String[]{movie.getTitle()});
                 }
 
 
@@ -223,6 +245,46 @@ fav = (Button)rootView.findViewById(R.id.favorite);
         return rootView;
     }
 
+    public String convertyListToString(ArrayList<String> list)
+    {
+        String wString=" ";
+
+        for (String s : list)
+        {
+            wString += s + "divider";
+        }
+
+
+
+        return wString;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        try {
+            favBtn();
+            setComments();
+            setTitle();
+            setPoster();
+            setOverview();
+            setDates();
+            setRating();
+            setTrailer();
+            setTrailer2();
+
+        }
+        catch (Exception xception)
+        {
+
+        }
+
+
+
+
+
+
+    }
 
     public void trailer1(View v)
     {
@@ -289,6 +351,10 @@ fav = (Button)rootView.findViewById(R.id.favorite);
         }
 
     }
+
+
+
+
 
 
 

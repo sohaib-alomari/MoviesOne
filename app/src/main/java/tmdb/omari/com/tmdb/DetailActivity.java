@@ -1,5 +1,6 @@
 package tmdb.omari.com.tmdb;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,10 +9,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-
 public class DetailActivity extends AppCompatActivity {
 
-
+    public static Context contextOfApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,18 +19,26 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         if(savedInstanceState==null)
         {
+
+
             Bundle arguments = new Bundle();
             arguments.putParcelable(DetailActivityFragment.DETAIL_MOVIE, getIntent().getParcelableExtra(DetailActivityFragment.DETAIL_MOVIE));
 
+            contextOfApplication = getApplicationContext();
             DetailActivityFragment fragment = new DetailActivityFragment();
             fragment.setArguments(arguments);
             Log.v("DetailActivity", "---***IN Detail Activity***---");
 
           getSupportFragmentManager().beginTransaction().add(R.id.containerDetailll, fragment).commit();
+
+
+
         }
 
 
     }
+
+
 
 
     @Override
@@ -104,6 +112,11 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
     */
+
+    public static Context getContextOfApplication()
+    {
+        return contextOfApplication;
+    }
 
 
 }
