@@ -19,7 +19,6 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +39,7 @@ public class mainFragment extends Fragment {
     static GridView gridView;
     static int width;
     // you have to sign up and get your own API key 3
-    static String API_KEY="1f1e4e852b00dc660803e835ee5fc600";
+    static String API_KEY=" ";
     static ArrayList<String> posters;
     static boolean sortbyp=false;
     static boolean sortByFavorites;
@@ -227,7 +226,7 @@ public static int positionn;
             if (postersF != null&&getActivity()!=null) {
                 ImageAdapter adapter = new ImageAdapter(getActivity(), postersF, width);
                 gridView.setAdapter(adapter);
-                Toast.makeText(getContext(),dbb, Toast.LENGTH_SHORT).show();
+
         }
     } else {
         gridView.setVisibility(GridView.VISIBLE);
