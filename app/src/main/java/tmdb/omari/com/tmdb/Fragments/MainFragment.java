@@ -852,7 +852,7 @@ public class MainFragment extends Fragment {
 
             gridView.setAdapter(null);
             newpref=true;
-           
+
 
             onStart();
 
