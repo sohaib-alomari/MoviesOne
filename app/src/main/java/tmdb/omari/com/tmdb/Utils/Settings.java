@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Utils;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -7,6 +7,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import tmdb.omari.com.tmdb.R;
 
 public class Settings extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
 

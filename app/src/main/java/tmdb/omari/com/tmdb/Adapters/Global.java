@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Adapters;
 
 import android.app.Application;
 

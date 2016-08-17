@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class Movie implements Parcelable {
 
     static  int    id;
+    static boolean firsttime=true;
     static String title;
     static String original_title;
     static String overview;
@@ -200,4 +201,10 @@ public class Movie implements Parcelable {
 
 
 
+    public void setFirsttime(boolean firsttime){
+        this.firsttime=firsttime;
+    }
+    public boolean getFirstTime(){
+        return firsttime;
+    }
 }

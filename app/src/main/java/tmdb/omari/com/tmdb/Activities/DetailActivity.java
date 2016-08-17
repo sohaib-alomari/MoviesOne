@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import tmdb.omari.com.tmdb.Fragments.DetailActivityFragment;
+import tmdb.omari.com.tmdb.R;
+import tmdb.omari.com.tmdb.Utils.Settings;
 
 
 public class DetailActivity extends AppCompatActivity {
@@ -22,7 +26,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
             Bundle arguments = new Bundle();
-            arguments.putParcelable(DetailActivityFragment.DETAIL_MOVIE, getIntent().getParcelableExtra(DetailActivityFragment.DETAIL_MOVIE));
+            arguments.putParcelable(tmdb.omari.com.tmdb.Fragments.DetailActivityFragment.DETAIL_MOVIE, getIntent().getParcelableExtra(tmdb.omari.com.tmdb.Fragments.DetailActivityFragment.DETAIL_MOVIE));
 
             contextOfApplication = getApplicationContext();
             DetailActivityFragment fragment = new DetailActivityFragment();

@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +10,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
+
+import tmdb.omari.com.tmdb.R;
 
 public class ImageAdapter extends BaseAdapter {
     private Context mContext;

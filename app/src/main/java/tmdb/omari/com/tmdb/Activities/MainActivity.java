@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Activities;
 
 
 //Sohaib Alomari MovieContract Project Part 2
@@ -12,7 +12,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements mainFragment.Callback  {
+import tmdb.omari.com.tmdb.Fragments.DetailActivityFragment;
+import tmdb.omari.com.tmdb.Fragments.MainFragment;
+import tmdb.omari.com.tmdb.R;
+import tmdb.omari.com.tmdb.Utils.Settings;
+
+public class MainActivity extends AppCompatActivity implements MainFragment.Callback  {
 
     public static boolean TABLET = false;
     private final static String TAG = "Omari: <" + MainActivity.class.getSimpleName() + ">";

@@ -16,7 +16,7 @@
 
 
 <fragment
-    android:name="tmdb.omari.com.tmdb.mainFragment"
+    android:name="tmdb.omari.com.tmdb.Fragments.MainFragment"
     android:id="@+id/container"
     android:layout_width="0dp"
     android:layout_weight="2"

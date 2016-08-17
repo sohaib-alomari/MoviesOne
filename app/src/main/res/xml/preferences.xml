@@ -4,7 +4,7 @@
     <ListPreference
         android:title="Sort By"
         android:key="sortby"
-        android:defaultValue="popularity"
+        android:defaultValue="rating"
         android:entries="@array/pref_entries"
         android:entryValues="@array/pref_values"
 

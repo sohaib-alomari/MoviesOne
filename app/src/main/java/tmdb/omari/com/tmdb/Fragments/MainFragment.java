@@ -1,6 +1,8 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Fragments;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Point;
@@ -11,6 +13,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +22,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,16 +37,27 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import tmdb.omari.com.tmdb.Activities.MainActivity;
+import tmdb.omari.com.tmdb.Adapters.ImageAdapter;
+import tmdb.omari.com.tmdb.Data.AllMoviesProvider;
+import tmdb.omari.com.tmdb.Data.MProvider;
+import tmdb.omari.com.tmdb.Data.Movie;
+import tmdb.omari.com.tmdb.Data.MovieProvider;
+import tmdb.omari.com.tmdb.R;
 
-public class mainFragment extends Fragment {
+
+public class MainFragment extends Fragment {
 
     static GridView gridView;
-    static int width;
+    public static int width;
     // you have to sign up and get your own API key 3
-    static String API_KEY=" ";
+    static String API_KEY = "1f1e4e852b00dc660803e835ee5fc600";
     static ArrayList<String> posters;
-    static boolean sortbyp=false;
+    static boolean sortbyp = false;
     static boolean sortByFavorites;
+    boolean firstTime=true;
+    boolean resume;
+
 
     static PreferenceChangeListener listener;
     static SharedPreferences prefs;
@@ -66,15 +81,15 @@ public class mainFragment extends Fragment {
     static ArrayList<ArrayList<String>> commentsF;
     static ArrayList<String> overviewsF;
 
+    static boolean newpref = true;
+
     Movie movieItem = new Movie();
     public static String dbb;
 
-public static int positionn;
+    public static int positionn;
 
 
-
-
-    public mainFragment() {
+    public MainFragment() {
 
     }
 
@@ -87,22 +102,20 @@ public static int positionn;
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
 
-
-
         //We have to get the size of the screen to determain if it's a tablet of a phone
         WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         if (MainActivity.TABLET) {
-            width = size.x /6;
+            width = size.x / 6;
 
         } else
-            width = size.x /3;
+            width = size.x / 3;
 
         if (getActivity() != null) {
             ArrayList<String> arrayList = new ArrayList<String>();
-            ImageAdapter adapter=new ImageAdapter(getActivity(),arrayList,width);
+            ImageAdapter adapter = new ImageAdapter(getActivity(), arrayList, width);
             gridView = (GridView) rootView.findViewById(R.id.gridview);
             gridView.setColumnWidth(width);
             gridView.setAdapter(adapter);
@@ -110,15 +123,22 @@ public static int positionn;
 
         }
 
+
+
+
+
+
+
+
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                positionn=position;
+                positionn = position;
                 if (!sortByFavorites) {
 
 
-                        favorited = bindFavoritesToMovies();
-
+                    favorited = bindFavoritesToMovies();
 
 
                     movieItem.setTitle(titles.get(position));
@@ -133,18 +153,17 @@ public static int positionn;
                     movieItem.setYoutube2(youtubes2.get(position));
 
                     movieItem.setTitle(titles.get(position));
+                    try {
+                        movieItem.setComments(comments.get(position));
+                    } catch (Exception e) {
 
-                    movieItem.setComments(comments.get(position));
+                    }
 
 
                     movieItem.setFav(favorited.get(position));
-                    ((Callback) getActivity()).onItemSelected(titles.get(position),"title");
+                    ((Callback) getActivity()).onItemSelected(titles.get(position), "title");
 
-                }
-
-
-
-                else{
+                } else {
 
 
                     movieItem.setPoster_path(postersF.get(position));
@@ -163,8 +182,7 @@ public static int positionn;
 
 
                     movieItem.setFav(favorited.get(position));
-                    ((Callback) getActivity()).onItemSelected(titles.get(position),"title");
-
+                    ((Callback) getActivity()).onItemSelected(titlesF.get(position), "title");
 
 
                 }
@@ -177,8 +195,6 @@ public static int positionn;
     }
 
 
-
-
     @Override
     public void onStart() {
 
@@ -186,6 +202,26 @@ public static int positionn;
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         listener = new PreferenceChangeListener();
         prefs.registerOnSharedPreferenceChangeListener(listener);
+
+
+        String URL="content://tmdb.omari.com.tmdb.AllMovies/allmovies" ;
+        Uri allmovies = Uri.parse(URL);
+
+        Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+        c.moveToFirst();
+        if(!isCursorEmpty()){
+
+
+            Log.v("loadvv","load On Start Ok");
+        }
+
+        if (c != null) {
+            // Toast.makeText(getContext(),"Not Null",Toast.LENGTH_LONG).show();
+        }
+        if (isCursorEmpty()){
+            Toast.makeText(getContext(), " Null", Toast.LENGTH_SHORT).show();
+        }
+
 
         if (prefs.getString("sortby", "").equals("popularity")) {
             getActivity().setTitle("Most Popular Movies");
@@ -205,52 +241,219 @@ public static int positionn;
 
         try {
             loadFavoritesData();
-        }
-        catch (Exception e)
-        {
+            getFromDb();
+        } catch (Exception e) {
 
         }
-
-
 
 
         if (sortByFavorites) {
             if (postersF.size() == 0) {
-               // txt.setText("You have no favorites movies.");
+                // txt.setText("You have no favorites movies.");
 
                 //gridView.setVisibility(GridView.GONE);
             } else {
                 gridView.setVisibility(GridView.VISIBLE);
 
+
             }
-            if (postersF != null&&getActivity()!=null) {
+            if (postersF != null && getActivity() != null) {
                 ImageAdapter adapter = new ImageAdapter(getActivity(), postersF, width);
                 gridView.setAdapter(adapter);
 
+            }
         }
-    } else {
-        gridView.setVisibility(GridView.VISIBLE);
+        else {
+            gridView.setVisibility(GridView.VISIBLE);
+        }
 
 
-
-        if (isNetworkAvailable()) {
+        try {
+            if (isConnected() && !sortByFavorites && isCursorEmpty()) {
                 //we made it work in the background thread because it can freeze the main thread till all the images are loaded so it needs to be done in the background
                 gridView.setVisibility(GridView.VISIBLE);
+                newpref = false;
                 new ImageLoadTask().execute();
+                Toast.makeText(getContext(), " NETWORK", Toast.LENGTH_LONG).show();
+
+                //just in case there is no internet Connection
+
+            } else {
+
+                if (!isCursorEmpty() && !sortByFavorites) {
+                    Log.v("why","whyyyy");
+
+                    gridView.setVisibility(GridView.VISIBLE);
+                    if (posters != null) {
+                        Log.v("who","whoooooo");
+                        ImageAdapter adapterR = new ImageAdapter(getActivity(), posters, width);
+                        gridView.setAdapter(adapterR);
+                    }
+
+                }
+
+
             }
+        } catch (InterruptedException e) {
 
-            //just in case there is no internet Connection
-            else {
-                TextView tv = new TextView(getActivity());
-
-                tv.setText("There is No Internet Connection!");
-
-
-                gridView.setVisibility(GridView.GONE);
-            }
+            AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+            alertDialog.setTitle("Alert");
+            alertDialog.setMessage("Alert message to be shown");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+
     }
 
+    public void clearAllList()
+    {
+        posters.clear();
+        titles.clear();
+        dates.clear();
+        ratings.clear();
+        overviews.clear();
+        comments.clear();
+
+    }
+
+    public boolean isCursorEmpty(){
+        boolean e=false;
+        if (!sortByFavorites && !sortbyp) {
+            String URL="content://tmdb.omari.com.tmdb.AllMovies/allmovies" ;
+            Uri allmovies = Uri.parse(URL);
+            Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+            if (!(c.moveToFirst()) || c.getCount() ==0){
+                e=true;
+            }
+            else{
+                e=false;
+            }
+        }
+        else {
+            if (sortbyp) {
+                String URL = "content://tmdb.omari.com.tmdb.Moviess/popmovies";
+                Uri allmovies = Uri.parse(URL);
+                Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+                if (!(c.moveToFirst()) || c.getCount() == 0) {
+                    e = true;
+                } else {
+                    e = false;
+                }
+            }
+        }
+
+
+        return e;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        listener = new PreferenceChangeListener();
+        prefs.registerOnSharedPreferenceChangeListener(listener);
+
+       if(!sortbyp&&!sortByFavorites){
+
+           insertTopRated();
+       }
+        else{
+           if(sortbyp) {
+               insertPopular();
+           }
+
+       }
+
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+
+
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(!sortbyp && !sortByFavorites) {
+            String URL = "content://tmdb.omari.com.tmdb.AllMovies/allmovies";
+            Uri allmovies = Uri.parse(URL);
+            Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+        }
+        else
+        {
+            if(sortbyp ) {
+                String URL = "content://tmdb.omari.com.tmdb.Moviess/popmovies";
+                Uri allmovies = Uri.parse(URL);
+                Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+            }
+
+
+        }
+
+
+
+
+
+        if (isCursorEmpty() && !sortByFavorites){
+
+
+                getFromDb();
+
+
+    }
+
+    }
+
+    public void getFromDb()
+    {
+        if(!sortbyp && !sortByFavorites) {
+            loadTopRated();
+        }
+
+        else{
+            if(sortbyp&& !sortByFavorites){
+              loadPopular();
+            }
+
+
+        }
+
+
+    }
+
+    public String convertyListToString(ArrayList<String> list)
+    {
+        String wString=" ";
+
+        for (String s : list)
+        {
+            wString += s + "divider";
+        }
+
+
+
+        return wString;
+    }
 
     public boolean isNetworkAvailable() {
 
@@ -258,6 +461,32 @@ public static int positionn;
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
 
+    }
+
+    public boolean isConnected() throws InterruptedException, IOException
+    {
+        String command = "ping -c 1 google.com";
+        return (Runtime.getRuntime().exec (command).waitFor() == 0);
+    }
+
+    public  boolean hasActiveInternetConnection() {
+
+            try {
+                HttpURLConnection urlc = (HttpURLConnection)
+                        (new URL("http://clients3.google.com/generate_204")
+                                .openConnection());
+                urlc.setRequestProperty("User-Agent", "Android");
+                urlc.setRequestProperty("Connection", "close");
+                urlc.setConnectTimeout(1500);
+                urlc.connect();
+                return (urlc.getResponseCode() == 204 &&
+                        urlc.getContentLength() == 0);
+            } catch (IOException e) {
+
+
+            }
+
+        return false;
     }
 
 
@@ -275,6 +504,7 @@ public static int positionn;
                 }
                 catch(Exception e)
                 {
+                    Log.v("posters",  "in Catch");
                     continue;
                 }
             }
@@ -282,7 +512,7 @@ public static int positionn;
         }
         @Override
         protected void onPostExecute(ArrayList<String>result)
-        {
+        {        //cancelled the resul!=null
             if(result!=null && getActivity()!=null)
             {
                 ImageAdapter adapter = new ImageAdapter(getActivity(),result, width);
@@ -302,10 +532,13 @@ public static int positionn;
 
                 try {
                     String urlString = null;
+
                     if (sortByPop) {
-                        urlString = "http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key="+API_KEY;
+                        urlString = "http://api.themoviedb.org/3/movie/popular?api_key="+API_KEY;
+                        Log.v("sortby",  "popular");
                     } else {
-                        urlString = "http://api.themoviedb.org/3/discover/movie?sort_by=vote_average.desc&vote_count.gte=500&api_key="+API_KEY;
+                        Log.v("sortby",  "toprated");
+                        urlString = "http://api.themoviedb.org/3/movie/top_rated?api_key="+API_KEY;
                     }
 
                     URL url = new URL(urlString);
@@ -600,7 +833,7 @@ public static int positionn;
                 JSONObject movie = moviesArray.getJSONObject(i);
 
 
-               // movieItem.setOriginal_title("Sohaib");
+
 
                 if(param.equals("vote_average"))
                 {
@@ -627,6 +860,10 @@ public static int positionn;
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
             gridView.setAdapter(null);
+            newpref=true;
+           // if(isCursorEmpty())
+               // ClearAllList();
+
             onStart();
 
         }
@@ -636,7 +873,7 @@ public static int positionn;
 
     public void loadFavoritesData()
     {
-        Context applicationContext = DetailActivity.getContextOfApplication();
+
 
 
         String URL="content://tmdb.omari.com.tmdb.Movies/movies" ;
@@ -655,7 +892,7 @@ public static int positionn;
         while(c.moveToNext())
         {
 
-            dbb=c.getString(c.getColumnIndex(MovieProvider.NAME));
+            
 
             postersF.add(c.getString(c.getColumnIndex(MovieProvider.NAME)));
             commentsF.add(convertStringToArrayList(c.getString(c.getColumnIndex(MovieProvider.REVIEW))));
@@ -669,6 +906,7 @@ public static int positionn;
 
 
         }
+        c.close();
     }
 
     public ArrayList<String> convertStringToArrayList(String s)
@@ -694,6 +932,192 @@ public static int positionn;
     }
         return result;
     }
+
+
+
+public void insertTopRated(){
+
+    String URL="content://tmdb.omari.com.tmdb.AllMovies/allmovies" ;
+    Uri allmovies = Uri.parse(URL);
+    Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+
+
+    if (titles != null){
+
+
+        if (isCursorEmpty() && movieItem.getFirstTime()) {
+            for (int i = 0; i < titles.size(); i++) {
+                Log.v("COPY","OK");
+                ContentValues values = new ContentValues();
+                values.put(AllMoviesProvider.NAME, posters.get(i));
+                values.put(AllMoviesProvider.OVERVIEW, overviews.get(i));
+                values.put(AllMoviesProvider.RATING, ratings.get(i));
+                values.put(AllMoviesProvider.DATE, dates.get(i));
+                try {
+                    values.put(AllMoviesProvider.REVIEW, convertyListToString(comments.get(i)));
+                } catch (Exception e) {
+                    values.put(AllMoviesProvider.REVIEW, " No Comments Found for this Movie");
+                }
+                values.put(AllMoviesProvider.YOUTUBE1, youtubes.get(i));
+                values.put(AllMoviesProvider.YOUTUBE2, youtubes2.get(i));
+                values.put(AllMoviesProvider.TITLE, titles.get(i));
+
+
+                getActivity().getContentResolver().insert(AllMoviesProvider.CONTENT_URI, values);
+
+                movieItem.setFirsttime(false);
+
+            }
+        }
+
+    }
+
+
+
+
+    }
+
+
+    public void insertPopular(){
+
+        String URL="content://tmdb.omari.com.tmdb.Moviess/popmovies" ;
+        Uri allmovies = Uri.parse(URL);
+        Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+
+
+        if (titles != null){
+
+
+            if (isCursorEmpty()) {
+                for (int i = 0; i < titles.size(); i++) {
+                    Log.v("COPY","OK");
+                    ContentValues values = new ContentValues();
+                    values.put(MProvider.NAME, posters.get(i));
+                    values.put(MProvider.OVERVIEW, overviews.get(i));
+                    values.put(MProvider.RATING, ratings.get(i));
+                    values.put(MProvider.DATE, dates.get(i));
+                    try {
+                        values.put(MProvider.REVIEW, convertyListToString(comments.get(i)));
+                    } catch (Exception e) {
+                        values.put(MProvider.REVIEW, " No Comments Found for this Movie");
+                    }
+                    values.put(MProvider.YOUTUBE1, youtubes.get(i));
+                    values.put(MProvider.YOUTUBE2, youtubes2.get(i));
+                    values.put(MProvider.TITLE, titles.get(i));
+
+
+                    getActivity().getContentResolver().insert(MProvider.CONTENT_URI, values);
+
+
+
+                }
+            }
+
+        }
+
+
+
+
+    }
+
+
+    public void loadTopRated()
+    {
+
+            String URL = "content://tmdb.omari.com.tmdb.AllMovies/allmovies";
+            Uri allmovies = Uri.parse(URL);
+            Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+
+
+
+
+        posters = new ArrayList<String>();
+        titles = new ArrayList<String>();
+        dates = new ArrayList<String>();
+        overviews = new ArrayList<String>();
+        favorited = new ArrayList<Boolean>();
+        comments = new ArrayList<ArrayList<String>>();
+        youtubes = new ArrayList<String>();
+        youtubes2 = new ArrayList<String>();
+        ratings= new ArrayList<String>();
+
+        while (c.moveToNext()) {
+
+
+            try {
+
+                posters.add(c.getString(c.getColumnIndex(AllMoviesProvider.NAME)));
+
+                comments.add(convertStringToArrayList(c.getString(c.getColumnIndex(AllMoviesProvider.REVIEW))));
+                titles.add(c.getString(c.getColumnIndex(AllMoviesProvider.TITLE)));
+                overviews.add(c.getString(c.getColumnIndex(AllMoviesProvider.OVERVIEW)));
+                youtubes.add(c.getString(c.getColumnIndex(AllMoviesProvider.YOUTUBE1)));
+                youtubes2.add(c.getString(c.getColumnIndex(AllMoviesProvider.YOUTUBE2)));
+                dates.add(c.getString(c.getColumnIndex(AllMoviesProvider.DATE)));
+                ratings.add(c.getString(c.getColumnIndex(AllMoviesProvider.RATING)));
+
+                Log.v("titles", c.getString(c.getColumnIndex(AllMoviesProvider.TITLE)));
+
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+        c.close();
+
+    }
+
+    public void loadPopular()
+    {
+
+        String URL = "content://tmdb.omari.com.tmdb.Moviess/popmovies";
+        Uri allmovies = Uri.parse(URL);
+        Cursor c = getActivity().getContentResolver().query(allmovies, null, null, null, "title");
+        c.moveToFirst();
+
+
+
+
+        posters = new ArrayList<String>();
+        titles = new ArrayList<String>();
+        dates = new ArrayList<String>();
+        overviews = new ArrayList<String>();
+        favorited = new ArrayList<Boolean>();
+        comments = new ArrayList<ArrayList<String>>();
+        youtubes = new ArrayList<String>();
+        youtubes2 = new ArrayList<String>();
+        ratings= new ArrayList<String>();
+
+        while (c.moveToNext()) {
+
+
+            try {
+
+                posters.add(c.getString(c.getColumnIndex(MProvider.NAME)));
+
+                comments.add(convertStringToArrayList(c.getString(c.getColumnIndex(MProvider.REVIEW))));
+                titles.add(c.getString(c.getColumnIndex(MProvider.TITLE)));
+                overviews.add(c.getString(c.getColumnIndex(MProvider.OVERVIEW)));
+                youtubes.add(c.getString(c.getColumnIndex(MProvider.YOUTUBE1)));
+                youtubes2.add(c.getString(c.getColumnIndex(MProvider.YOUTUBE2)));
+                dates.add(c.getString(c.getColumnIndex(MProvider.DATE)));
+                ratings.add(c.getString(c.getColumnIndex(MProvider.RATING)));
+
+                Log.v("titles", c.getString(c.getColumnIndex(MProvider.TITLE)));
+
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+        c.close();
+
+    }
+
+
+
 
 
     public interface Callback {

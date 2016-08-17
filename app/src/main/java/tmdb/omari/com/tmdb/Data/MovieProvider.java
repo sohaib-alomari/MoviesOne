@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Data;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -21,17 +21,17 @@ public class MovieProvider extends ContentProvider {
 
     static final String PROVIDER_NAME = "tmdb.omari.com.tmdb.Movies";
     static final String URL = "content://" + PROVIDER_NAME + "/movies";
-    static final Uri CONTENT_URI = Uri.parse(URL);
+    public static final Uri CONTENT_URI = Uri.parse(URL);
 
 
-    static final String NAME = "name";
-    static final String OVERVIEW = "overview";
-    static final String DATE = "date";
-    static final String REVIEW = "review";
-    static final String RATING = "rating";
-    static final String YOUTUBE1 = "youtube1";
-    static final String YOUTUBE2 = "youtube2";
-    static final String TITLE = "title";
+    public static final String NAME = "name";
+    public static final String OVERVIEW = "overview";
+    public static final String DATE = "date";
+    public static final String REVIEW = "review";
+    public static final String RATING = "rating";
+    public static final String YOUTUBE1 = "youtube1";
+    public static final String YOUTUBE2 = "youtube2";
+    public static final String TITLE = "title";
 
 
 
@@ -52,7 +52,7 @@ public class MovieProvider extends ContentProvider {
      */
     private SQLiteDatabase db;
     static final String DATABASE_NAME = "Movies";
-    static final String MOVIES_TABLE_NAME = "Movies";
+    public static  String MOVIES_TABLE_NAME = "Movies";
     static final int DATABASE_VERSION = 1;
     static final String CREATE_DB_TABLE =
             " CREATE TABLE " + MOVIES_TABLE_NAME +

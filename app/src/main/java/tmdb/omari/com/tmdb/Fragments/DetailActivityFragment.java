@@ -1,4 +1,4 @@
-package tmdb.omari.com.tmdb;
+package tmdb.omari.com.tmdb.Fragments;
 
 
 import android.content.ContentValues;
@@ -28,6 +28,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import tmdb.omari.com.tmdb.Data.Movie;
+import tmdb.omari.com.tmdb.Data.MovieProvider;
+import tmdb.omari.com.tmdb.R;
+
 public class DetailActivityFragment  extends Fragment    {
 
 
@@ -43,12 +47,12 @@ public class DetailActivityFragment  extends Fragment    {
     public static boolean favorite;
     public static Button fav;
     private ShareActionProvider mShareActionProvider;
-    static final String DETAIL_MOVIE = "DETAIL_MOVIE";
+    public static final String DETAIL_MOVIE = "DETAIL_MOVIE";
     public static final String TAG = DetailActivityFragment.class.getSimpleName();
     Context applicationContext;
 
     private String mMovie;
-    public  Movie movie;
+    public Movie movie;
 
     View rootView;
 
@@ -106,11 +110,11 @@ public class DetailActivityFragment  extends Fragment    {
 
     private void setPoster()
     {
-        //poster=i.getStringExtra("poster");
+
         ImageView img=(ImageView)rootView.findViewById(R.id.poster);
 
         Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w185/" + movie.getPoster_path()).resize(
-                mainFragment.width, (int)(mainFragment.width*1.5)).into(img);
+                MainFragment.width, (int)(MainFragment.width*1.5)).into(img);
     }
 
     void setTrailer()
@@ -131,7 +135,7 @@ public class DetailActivityFragment  extends Fragment    {
                              Bundle savedInstanceState) {
 
          rootView= inflater.inflate(R.layout.activity_detail_activity_fragment, container, false);
-        //getActivity().setTitle(movie.getTitle());
+
         setTitle();
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -176,7 +180,7 @@ public class DetailActivityFragment  extends Fragment    {
         Button trailer=(Button)rootView.findViewById(R.id.trailer1);
         trailer.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                //Do stuff here
+
                 Intent viewTrailer=new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+DetailActivityFragment.youtube));
                 startActivity(viewTrailer);
 
@@ -187,7 +191,7 @@ public class DetailActivityFragment  extends Fragment    {
         Button trailer2=(Button)rootView.findViewById(R.id.trailer2);
         trailer2.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                //Do stuff here
+
                 Intent viewTrailer=new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+DetailActivityFragment.youtube2));
                 startActivity(viewTrailer);
 
@@ -218,8 +222,6 @@ fav = (Button)rootView.findViewById(R.id.favorite);
                     values.put(MovieProvider.YOUTUBE2,DetailActivityFragment.youtube2);
                     values.put(MovieProvider.TITLE,movie.getTitle());
 
-                    applicationContext = DetailActivity.getContextOfApplication();
-                    //applicationContext.getContentResolver();
 
 
                     getActivity().getContentResolver().insert(MovieProvider.CONTENT_URI, values);
@@ -286,11 +288,7 @@ fav = (Button)rootView.findViewById(R.id.favorite);
 
     }
 
-    public void trailer1(View v)
-    {
-        Intent viewTrailer=new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+DetailActivityFragment.youtube));
-        startActivity(viewTrailer);
-    }
+
 
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)

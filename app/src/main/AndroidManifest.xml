@@ -12,19 +12,26 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Settings" />
-        <activity android:name=".DetailActivity" />
+        <activity android:name=".Utils.Settings" />
+        <activity android:name=".Activities.DetailActivity" />
 
         <provider
-            android:name="MovieProvider"
+            android:name=".Data.MProvider"
+            android:authorities="tmdb.omari.com.tmdb.Moviess" />
+
+        <provider
+            android:name=".Data.MovieProvider"
             android:authorities="tmdb.omari.com.tmdb.Movies" />
+        <provider
+            android:name=".Data.AllMoviesProvider"
+            android:authorities="tmdb.omari.com.tmdb.AllMovies" />
 
 
     </application>
