@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -127,10 +126,6 @@ public class MainFragment extends Fragment {
 
 
 
-
-
-
-
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -215,12 +210,8 @@ public class MainFragment extends Fragment {
             Log.v("loadvv","load On Start Ok");
         }
 
-        if (c != null) {
-            // Toast.makeText(getContext(),"Not Null",Toast.LENGTH_LONG).show();
-        }
-        if (isCursorEmpty()){
-            Toast.makeText(getContext(), " Null", Toast.LENGTH_SHORT).show();
-        }
+
+
 
 
         if (prefs.getString("sortby", "").equals("popularity")) {
@@ -274,7 +265,7 @@ public class MainFragment extends Fragment {
                 gridView.setVisibility(GridView.VISIBLE);
                 newpref = false;
                 new ImageLoadTask().execute();
-                Toast.makeText(getContext(), " NETWORK", Toast.LENGTH_LONG).show();
+
 
                 //just in case there is no internet Connection
 
@@ -358,20 +349,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        listener = new PreferenceChangeListener();
-        prefs.registerOnSharedPreferenceChangeListener(listener);
 
-       if(!sortbyp&&!sortByFavorites){
-
-           insertTopRated();
-       }
-        else{
-           if(sortbyp) {
-               insertPopular();
-           }
-
-       }
 
 
     }
@@ -379,7 +357,20 @@ public class MainFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        listener = new PreferenceChangeListener();
+        prefs.registerOnSharedPreferenceChangeListener(listener);
 
+        if(!sortbyp&&!sortByFavorites){
+
+            insertTopRated();
+        }
+        else{
+            if(sortbyp) {
+                insertPopular();
+            }
+
+        }
 
 
 
@@ -892,7 +883,7 @@ public class MainFragment extends Fragment {
         while(c.moveToNext())
         {
 
-            
+
 
             postersF.add(c.getString(c.getColumnIndex(MovieProvider.NAME)));
             commentsF.add(convertStringToArrayList(c.getString(c.getColumnIndex(MovieProvider.REVIEW))));

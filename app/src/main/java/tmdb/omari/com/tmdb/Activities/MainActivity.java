@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
 
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this,Settings.class);
             startActivity(intent);
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Call
     public void onItemSelected(String movie,String key) {
         if (mTwoPane) {
             Bundle arguments = new Bundle();
-            //arguments.putString(DetailActivityFragment.DETAIL_MOVIE, movie);
+
             if(key.equals("title"))
             {
                 arguments.putString("title", movie);

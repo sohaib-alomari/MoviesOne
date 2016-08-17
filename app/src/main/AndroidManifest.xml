@@ -19,8 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Utils.Settings" />
-        <activity android:name=".Activities.DetailActivity" />
+        <activity android:name=".Utils.Settings"
+            android:parentActivityName=".Activities.MainActivity"
+            />
+        <activity android:name=".Activities.DetailActivity"
+            android:parentActivityName=".Activities.MainActivity"
+            />
 
         <provider
             android:name=".Data.MProvider"
