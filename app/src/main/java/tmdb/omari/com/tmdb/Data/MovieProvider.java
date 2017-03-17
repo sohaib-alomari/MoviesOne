@@ -16,7 +16,7 @@ import android.util.Log;
 
 import java.util.HashMap;
 
-
+//created by Sohaib Alomari
 public class MovieProvider extends ContentProvider {
 
     static final String PROVIDER_NAME = "tmdb.omari.com.tmdb.Movies";
